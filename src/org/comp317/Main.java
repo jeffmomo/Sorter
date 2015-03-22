@@ -10,9 +10,9 @@ public class Main {
     public static void main(String[] args)
     {
 
-	    String[] testerino = new String[100];
+	    String[] testerino = new String[200000];
 
-	    for(int i = 0; i < 100; i++)
+	    for(int i = 0; i < testerino.length; i++)
 	    {
 		    String sss = rando(10);
 		    testerino[i] = sss;
@@ -32,14 +32,9 @@ public class Main {
 		String out = "";
 		for(int i = 0; i < len; i++)
 		{
-			out += map[((int)(r.nextDouble() * 1000)) % 7];
+			out += map[((int)(r.nextDouble() * 1000)) % map.length];
 		}
 		return out;
-	}
-
-	private static void cleanup()
-	{
-
 	}
 
 }

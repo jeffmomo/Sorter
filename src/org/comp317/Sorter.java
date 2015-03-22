@@ -1,6 +1,7 @@
 package org.comp317;
 
 import java.io.*;
+import java.util.zip.GZIPInputStream;
 
 
 /**
@@ -12,13 +13,16 @@ public class Sorter
 	private int _runs;
 	private int _maxFiles;
 	private OutputStreamWriter _currentStream;
-	private IOManager _IOMan = new IOManager(IOManager.NORMAL);
+	private IOManager _IOMan = new IOManager(IOManager.NORMAL, "UTF-8");
 
 	private OutputStreamWriter[] writers;
 	private boolean[] writeIsClosed ;
 
 	private long[] _readPosition;
 
+	private int _fibParam = 0;
+	private int[] _fibSequence;
+	private int[] _currentRuns;
 
 	private int zz = 0;
 
@@ -26,10 +30,17 @@ public class Sorter
 	{
 		_heap = new StringHeap(bufferSize);
 		_maxFiles = maxFiles;
+
 	}
 
 	public void sort(String[] data)
 	{
+		_fibParam = data.length / (_heap.capacity() * 2) + 1;
+		_fibSequence = fibSequence(_fibParam, _maxFiles);
+		
+                _currentRuns = new int[_maxFiles - 1];
+		_currentRuns[0] = 1;
+
 		writers = new OutputStreamWriter[_maxFiles];
 		writeIsClosed = new boolean[_maxFiles];
 
@@ -40,7 +51,7 @@ public class Sorter
 			_heap.insert(data[i]);
 		}
 
-		String _biggestInRun;
+		String biggestInRun;
 		// Loops through data
 		for(; i < data.length; i++)
 		{
@@ -58,12 +69,12 @@ public class Sorter
 			}
 
 			// Gets smallest item in heap
-			_biggestInRun = _heap.peek();
-			if(_biggestInRun == null)
+			biggestInRun = _heap.peek();
+			if(biggestInRun == null)
 				break;
 
 			// Compares the incoming item with the smallest item in heap
-			int compare = data[i].compareTo(_biggestInRun);
+			int compare = data[i].compareTo(biggestInRun);
 			if(compare > 0)
 			{
 				putStreamRuns(_heap.replace(data[i]));
@@ -81,10 +92,24 @@ public class Sorter
 
 		// After all lines processed flush out content in heap
 		_heap = new StringHeap(_heap.getBase());
-		while(_heap.size() > 0)
+		if(_heap.size() > 0)
 		{
-			putStreamRuns(_heap.get());
+			_runs = runFunction();
+			if(writers[_runs] != null)
+				putStreamRuns("");
+			while (_heap.size() > 0)
+			{
+				putStreamRuns(_heap.get());
+			}
 		}
+
+		// Adding dummy runs
+		int backup = _runs;
+		while((_runs = runFunctionDummy()) != -1)
+		{
+			putStreamRuns("");
+		}
+		_runs = backup;
 
 		// Flushes and closes all writers, as all runs have been created
 		for(int g = 0; g < _maxFiles - 1; g++)
@@ -97,6 +122,8 @@ public class Sorter
 			}catch (Exception e){e.printStackTrace();}
 		}
 
+
+
 		merge();
 	}
 
@@ -107,9 +134,9 @@ public class Sorter
 		{
 			File f = new File(fname);
 			if(f.delete()){
-				System.out.println(f.getName() + " is deleted!");
+				System.err.println(f.getName() + " is deleted!");
 			}else{
-				System.out.println("Delete operation is failed.");
+				System.err.println("Delete operation is failed.");
 			}
 		} catch (Exception e)
 		{
@@ -117,13 +144,27 @@ public class Sorter
 		}
 	}
 
+	private int numReaders(BufferedReader[] fr)
+	{
+		int out = 0;
+		for(int i = 0; i < fr.length; i++)
+		{
+			if(fr[i] != null)
+				out++;
+		}
+
+		return out;
+	}
+
 
 	// Merges existing runs
 	private void merge()
 	{
-		KVHeap mergeHeap = new KVHeap(_maxFiles);
+		KVHeap mergeHeap = new KVHeap(_maxFiles - 1);
 		_readPosition = new long[_maxFiles];
 		BufferedReader[] fileReaders = new BufferedReader[_maxFiles];
+		int prevRun = -1;
+		boolean first = true;
 
 		// Set initial file to write into
 		_runs = _maxFiles - 1;
@@ -131,8 +172,10 @@ public class Sorter
 		// Process an arbitrary number of runs.
 		// Use higher values if neccesary to complete the merge
 		// The number needs to be calculated thru fibbonacci or something
-		for(int z = 0; z < 50; z++)
+		//for(int z = 0; z < 1000; z++)
+		while(numReaders(fileReaders) > 1 || first)
 		{
+			first = false;
 			int tempruns = -1;
 			for (int i = 0; i < _maxFiles; i++)
 			{
@@ -165,7 +208,7 @@ public class Sorter
 					{
 						e.printStackTrace();
 					}
-					;
+
 					deleteFile("run" + i);
 					fileReaders[i] = null;
 				}
@@ -251,6 +294,7 @@ public class Sorter
 			if (tempruns != -1)
 			{
 				// Set the new writing destination
+				prevRun = _runs;
 				_runs = tempruns;
 				try
 				{
@@ -266,40 +310,139 @@ public class Sorter
 			}
 
 			// End of processing an entire run
-			System.out.println("pass");
+			System.err.println("pass");
 		}
+
+
+		if(new File("output").exists())
+			deleteFile("output");
+
+		if(_IOMan.getType() == IOManager.GZIPPED)
+		{
+			unzip("run" + (prevRun), "output");
+			deleteFile("run" + (prevRun));
+		}
+		else
+		{
+			File old = new File("run" + prevRun);
+			File output = new File("output");
+
+			if(old.renameTo(output)) 
+			{
+				System.err.println("FINISHED");
+			} else {
+				System.err.println("Error in renaming final output");
+			}
+		}
+	}
+
+	private void unzip(String inName, String outName)
+	{
+
+		byte[] buffer = new byte[1024];
+
+		try
+		{
+
+			GZIPInputStream gzStream =
+					new GZIPInputStream(new FileInputStream(inName));
+
+			FileOutputStream out =
+					new FileOutputStream(outName);
+
+			int len;
+			while ((len = gzStream.read(buffer)) > 0)
+			{
+				out.write(buffer, 0, len);
+			}
+
+			gzStream.close();
+			out.close();
+
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+        
+        private static int[] fibSequence(int dataLength, int _maxFiles)
+	{
+		int[] returnArray = new int[_maxFiles];
+		returnArray[_maxFiles-1] = 1;
+		int output = _maxFiles-1;
+		int total = 1;
+		
+                printRuns(returnArray,_maxFiles,total);
+		while (true)
+		{
+			for(int i = 0;i<_maxFiles;i++)
+			{
+				if (i != output)
+				{
+					returnArray[i] += returnArray[output];
+					total += returnArray[i];
+				}
+			}
+			returnArray[output] = 0;
+			printRuns(returnArray,_maxFiles,total);
+			if (total >= dataLength)
+			{
+				return returnArray;
+			}
+			total = 0;
+			output--;
+
+			if(output <0)
+			{
+				output += (_maxFiles);
+			}
+		}
+	}
+        
+        private static void printRuns( int[] runsArray, int files,int total)
+	{
+		for(int i = 0;i< files;i++)
+		{
+			System.out.print(runsArray[i] + " ");
+		}
+		System.out.print( "total: " + total + " \n");
 	}
 
 	private int runFunction()
 	{
-//		double total = 0;
-//		for(int i = 0; i < _maxFiles - 1; i++)
-//		{
-//			total += 1 * Math.pow(1.618, i);
-//		}
-//
-//		double rand = Math.random();
-//
-////		for(int i = 0; i < _maxFiles - 2; i++)
-////		{
-////			if(rand < (i / total))
-////				return i;
-////		}
-//
-//		double prob = ((Math.pow(1.618, _runs + 1)) / total);
-//		if(rand < prob)
-//		{
-//			return (_runs + 1) % (_maxFiles - 1);
-//		}
-//		else return _runs;
-//
-//
-//		//return _maxFiles - 1;
-		return (_runs + 1) % (_maxFiles - 1);
+		int puttable = (_runs + 1) % (_maxFiles - 1);
+		int firstOneChecked = puttable;
+
+		while(_currentRuns[puttable] >= _fibSequence[puttable + 1])
+		{
+			puttable = (puttable + 1) % (_maxFiles - 1);
+			if(puttable == firstOneChecked)
+				_fibSequence = fibSequence(++_fibParam, _maxFiles);
+		}
+
+		_currentRuns[puttable] += 1;
+		return puttable;
+	}
+        
+	private int runFunctionDummy()
+	{
+		int puttable = (_runs + 1) % (_maxFiles - 1);
+		int firstOneChecked = puttable;
+
+		while(_currentRuns[puttable] >= _fibSequence[puttable + 1])
+		{
+			puttable = (puttable + 1) % (_maxFiles - 1);
+			if(puttable == firstOneChecked)
+				return -1;
+		}
+
+		_currentRuns[puttable] += 1;
+		return puttable;
 	}
 
 	private void putStreamRuns(String item)
 	{
+
 		if(writers[_runs] == null || writeIsClosed[_runs])
 		{
 			writeIsClosed[_runs] = false;
@@ -321,6 +464,7 @@ public class Sorter
 
 	private void putStreamMerge(String item)
 	{
+
 		if(_currentStream == null)
 		{
 			try
