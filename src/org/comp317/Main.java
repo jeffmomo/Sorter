@@ -10,9 +10,9 @@ public class Main {
     public static void main(String[] args)
     {
 
-	    String[] testerino = new String[100];
+	    String[] testerino = new String[220];
 
-	    for(int i = 0; i < 100; i++)
+	    for(int i = 0; i < testerino.length; i++)
 	    {
 		    String sss = rando(10);
 		    testerino[i] = sss;

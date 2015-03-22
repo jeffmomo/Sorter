@@ -20,6 +20,9 @@ public class Sorter
 
 	private long[] _readPosition;
 
+	private int _fibParam = 0;
+	private int[] _fibSequence;
+	private int[] _currentRuns;
 
 	private int zz = 0;
 
@@ -27,10 +30,16 @@ public class Sorter
 	{
 		_heap = new StringHeap(bufferSize);
 		_maxFiles = maxFiles;
+
 	}
 
 	public void sort(String[] data)
 	{
+		_fibParam = data.length / (_heap.capacity() * 2) + 1;
+		_fibSequence = rund.fibSequence(_fibParam, _maxFiles);
+		_currentRuns = new int[_maxFiles - 1];
+		_currentRuns[0] = 1;
+
 		writers = new OutputStreamWriter[_maxFiles];
 		writeIsClosed = new boolean[_maxFiles];
 
@@ -41,7 +50,7 @@ public class Sorter
 			_heap.insert(data[i]);
 		}
 
-		String _biggestInRun;
+		String biggestInRun;
 		// Loops through data
 		for(; i < data.length; i++)
 		{
@@ -59,12 +68,12 @@ public class Sorter
 			}
 
 			// Gets smallest item in heap
-			_biggestInRun = _heap.peek();
-			if(_biggestInRun == null)
+			biggestInRun = _heap.peek();
+			if(biggestInRun == null)
 				break;
 
 			// Compares the incoming item with the smallest item in heap
-			int compare = data[i].compareTo(_biggestInRun);
+			int compare = data[i].compareTo(biggestInRun);
 			if(compare > 0)
 			{
 				putStreamRuns(_heap.replace(data[i]));
@@ -82,10 +91,24 @@ public class Sorter
 
 		// After all lines processed flush out content in heap
 		_heap = new StringHeap(_heap.getBase());
-		while(_heap.size() > 0)
+		if(_heap.size() > 0)
 		{
-			putStreamRuns(_heap.get());
+			_runs = runFunction();
+			if(writers[_runs] != null)
+				putStreamRuns("");
+			while (_heap.size() > 0)
+			{
+				putStreamRuns(_heap.get());
+			}
 		}
+
+		// Adding dummy runs
+		int backup = _runs;
+		while((_runs = runFunctionDummy()) != -1)
+		{
+			putStreamRuns("");
+		}
+		_runs = backup;
 
 		// Flushes and closes all writers, as all runs have been created
 		for(int g = 0; g < _maxFiles - 1; g++)
@@ -97,6 +120,8 @@ public class Sorter
 				writeIsClosed[g] = true;
 			}catch (Exception e){e.printStackTrace();}
 		}
+
+
 
 		merge();
 	}
@@ -122,7 +147,7 @@ public class Sorter
 	// Merges existing runs
 	private void merge()
 	{
-		KVHeap mergeHeap = new KVHeap(_maxFiles);
+		KVHeap mergeHeap = new KVHeap(_maxFiles - 1);
 		_readPosition = new long[_maxFiles];
 		BufferedReader[] fileReaders = new BufferedReader[_maxFiles];
 		int prevRun = -1;
@@ -133,7 +158,7 @@ public class Sorter
 		// Process an arbitrary number of runs.
 		// Use higher values if neccesary to complete the merge
 		// The number needs to be calculated thru fibbonacci or something
-		for(int z = 0; z < 70; z++)
+		for(int z = 0; z < 16; z++)
 		{
 			int tempruns = -1;
 			for (int i = 0; i < _maxFiles; i++)
@@ -326,34 +351,38 @@ public class Sorter
 
 	private int runFunction()
 	{
-//		double total = 0;
-//		for(int i = 0; i < _maxFiles - 1; i++)
-//		{
-//			total += 1 * Math.pow(1.618, i);
-//		}
-//
-//		double rand = Math.random();
-//
-////		for(int i = 0; i < _maxFiles - 2; i++)
-////		{
-////			if(rand < (i / total))
-////				return i;
-////		}
-//
-//		double prob = ((Math.pow(1.618, _runs + 1)) / total);
-//		if(rand < prob)
-//		{
-//			return (_runs + 1) % (_maxFiles - 1);
-//		}
-//		else return _runs;
-//
-//
-//		//return _maxFiles - 1;
-		return (_runs + 1) % (_maxFiles - 1);
+		int puttable = (_runs + 1) % (_maxFiles - 1);
+		int firstOneChecked = puttable;
+
+		while(_currentRuns[puttable] >= _fibSequence[puttable + 1])
+		{
+			puttable = (puttable + 1) % (_maxFiles - 1);
+			if(puttable == firstOneChecked)
+				_fibSequence = rund.fibSequence(++_fibParam, _maxFiles);
+		}
+
+		_currentRuns[puttable] += 1;
+		return puttable;
+	}
+	private int runFunctionDummy()
+	{
+		int puttable = (_runs + 1) % (_maxFiles - 1);
+		int firstOneChecked = puttable;
+
+		while(_currentRuns[puttable] >= _fibSequence[puttable + 1])
+		{
+			puttable = (puttable + 1) % (_maxFiles - 1);
+			if(puttable == firstOneChecked)
+				return -1;
+		}
+
+		_currentRuns[puttable] += 1;
+		return puttable;
 	}
 
 	private void putStreamRuns(String item)
 	{
+
 		if(writers[_runs] == null || writeIsClosed[_runs])
 		{
 			writeIsClosed[_runs] = false;
@@ -375,6 +404,7 @@ public class Sorter
 
 	private void putStreamMerge(String item)
 	{
+
 		if(_currentStream == null)
 		{
 			try
