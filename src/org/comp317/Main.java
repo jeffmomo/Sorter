@@ -32,14 +32,9 @@ public class Main {
 		String out = "";
 		for(int i = 0; i < len; i++)
 		{
-			out += map[((int)(r.nextDouble() * 1000)) % 7];
+			out += map[((int)(r.nextDouble() * 1000)) % map.length];
 		}
 		return out;
-	}
-
-	private static void cleanup()
-	{
-
 	}
 
 }
