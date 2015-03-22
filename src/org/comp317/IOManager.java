@@ -1,7 +1,5 @@
 package org.comp317;
 
-import sun.reflect.annotation.ExceptionProxy;
-
 import java.io.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -14,21 +12,25 @@ public class IOManager
 	public static int GZIPPED = 1;
 	public static int NORMAL = 0;
 
+
+
 	private int _type;
 	private String _charset;
+	private int _bufferSize;
 
-	public IOManager(int type, String charset)
+	public IOManager(int type, String charset, int bufferSize)
 	{
 		_type = type;
 		_charset = charset;
+		_bufferSize = bufferSize;
 	}
 
-	public OutputStreamWriter createOutputStreamWriter(String fname) throws Exception
+	public BufferedWriter createOutputStreamWriter(String fname) throws Exception
 	{
 		if(_type == 0)
-			return new OutputStreamWriter(new FileOutputStream(fname), _charset);
+			return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fname), _charset), _bufferSize);
 		else
-			return new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(fname)), _charset);
+			return new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(fname)), _charset), _bufferSize);
 	}
 
 	public BufferedReader createBufferedReader(String fname) throws Exception

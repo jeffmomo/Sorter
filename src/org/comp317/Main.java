@@ -5,7 +5,7 @@ import java.util.Random;
 public class Main {
 	static Random r = new Random(100);
 
-	static String[] map = new String[]{"a","b","c","d","e","f","g"};
+	static String[] map = new String[]{"a","b"};
 
     public static void main(String[] args)
     {
@@ -14,17 +14,25 @@ public class Main {
 
 	    for(int i = 0; i < testerino.length; i++)
 	    {
-		    String sss = rando(10);
+		    String sss = rando(200);
 		    testerino[i] = sss;
 		    //System.out.println(sss);
 	    }
 
 	    int runs = 1;
-	    int memForRun = testerino.length / (runs * 2);
 
+	    long startTime = System.nanoTime();
 
-	    Sorter s = new Sorter(3, 7);
+	    Sorter s = new Sorter(30, 10);
 	    s.sort(testerino);
+
+	    long endTime = System.nanoTime() - startTime;
+
+	    System.err.println(endTime / 1000000);
+
+
+
+
     }
 
 	private static String rando(int len)

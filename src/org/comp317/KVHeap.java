@@ -12,14 +12,16 @@ package org.comp317;
 public class KVHeap
 {
 	private int _size = 0;
-	private KVPair<Integer, String>[] _heapBase;
+	private int[] _heapBaseK;
+	private String[] _heapBaseV;
 
 	//
 // Constructors
 //
 	public KVHeap(int capacity)
 	{
-		_heapBase = new KVPair[capacity];
+		_heapBaseK = new int[capacity];
+		_heapBaseV = new String[capacity];
 	}
 
 	//
@@ -27,13 +29,15 @@ public class KVHeap
 //
 	public void insert(KVPair<Integer,String> item)
 	{
-		_heapBase[_size++] = item;
+		_heapBaseK[_size] = item.key;
+		_heapBaseV[_size] = item.value;
+		_size++;
 
 		// Upheap
 		for(int position = _size - 1; position > 0;)
 		{
 			int parentPosition = (position - 1) / 2;
-			if(item.value.compareTo(_heapBase[parentPosition].value) > 0)
+			if(item.value.compareTo(_heapBaseV[parentPosition]) > 0)
 				return;
 
 			swap(position, position = parentPosition);
@@ -42,12 +46,14 @@ public class KVHeap
 
 	public KVPair<Integer,String> get()
 	{
-		if(_heapBase[0] == null)
+		if(_heapBaseV[0] == null)
 			return null;
 
-		KVPair<Integer,String> smallest = _heapBase[0];
+		KVPair<Integer,String> smallest = new KVPair<Integer, String>(_heapBaseK[0], _heapBaseV[0]);
 
-		_heapBase[0] = _heapBase[--_size];
+		_heapBaseK[0] = _heapBaseK[--_size];
+		_heapBaseV[0] = _heapBaseV[_size];
+
 
 		downHeapFrom(0);
 		return smallest;
@@ -55,17 +61,19 @@ public class KVHeap
 
 	public KVPair<Integer,String> replace(KVPair<Integer,String> item)
 	{
-		KVPair<Integer,String> smallest = _heapBase[0];
+		int smallestK = _heapBaseK[0];
+		String smallestV = _heapBaseV[0];
 
-		_heapBase[0] = item;
+		_heapBaseK[0] = item.key;
+		_heapBaseV[0] = item.value;
 		downHeapFrom(0);
 
-		return smallest;
+		return new KVPair<Integer, String>(smallestK,smallestV);
 	}
 
 	public KVPair<Integer,String> peek()
 	{
-		return _heapBase[0];
+		return new KVPair<Integer, String>(_heapBaseK[0], _heapBaseV[0]);
 	}
 	public int size()
 	{
@@ -73,7 +81,7 @@ public class KVHeap
 	}
 	public int capacity()
 	{
-		return _heapBase.length;
+		return _heapBaseK.length;
 	}
 
 
@@ -90,10 +98,10 @@ public class KVHeap
 			if(d >= _size)
 				return;
 
-			if(d + 1 < _size && _heapBase[d].value.compareTo(_heapBase[d + 1].value) > 0)
+			if(d + 1 < _size && _heapBaseV[d].compareTo(_heapBaseV[d + 1]) > 0)
 				d++;
 
-			if(_heapBase[position].value.compareTo(_heapBase[d].value) > 0)
+			if(_heapBaseV[position].compareTo(_heapBaseV[d]) > 0)
 			{
 				swap(position, d);
 				position = d;
@@ -104,10 +112,15 @@ public class KVHeap
 	}
 	private void swap(int idxA, int idxB)
 	{
-		KVPair<Integer,String> tmp = _heapBase[idxA];
+		int tmpK = _heapBaseK[idxA];
+		String tmpV = _heapBaseV[idxA];
 
-		_heapBase[idxA] = _heapBase[idxB];
-		_heapBase[idxB] = tmp;
+		_heapBaseK[idxA] = _heapBaseK[idxB];
+		_heapBaseV[idxA] = _heapBaseV[idxB];
+
+
+		_heapBaseK[idxB] = tmpK;
+		_heapBaseV[idxB] = tmpV;
 	}
 
 

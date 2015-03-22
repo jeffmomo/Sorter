@@ -1,5 +1,6 @@
 package org.comp317;
 
+
 import java.io.*;
 import java.util.zip.GZIPInputStream;
 
@@ -12,13 +13,12 @@ public class Sorter
 	private StringHeap _heap;
 	private int _runs;
 	private int _maxFiles;
-	private OutputStreamWriter _currentStream;
-	private IOManager _IOMan = new IOManager(IOManager.NORMAL, "UTF-8");
+	private BufferedWriter _currentStream;
+	private IOManager _IOMan = new IOManager(IOManager.NORMAL, "UTF-8", 65536);
 
-	private OutputStreamWriter[] writers;
+	private BufferedWriter[] writers;
 	private boolean[] writeIsClosed ;
 
-	private long[] _readPosition;
 
 	private int _fibParam = 0;
 	private int[] _fibSequence;
@@ -40,7 +40,7 @@ public class Sorter
 		_currentRuns = new int[_maxFiles - 1];
 		_currentRuns[0] = 1;
 
-		writers = new OutputStreamWriter[_maxFiles];
+		writers = new BufferedWriter[_maxFiles];
 		writeIsClosed = new boolean[_maxFiles];
 
 		// Fill heap with data
@@ -115,13 +115,11 @@ public class Sorter
 		{
 			try
 			{
-				writers[g].flush();
+				//writers[g].flush();
 				writers[g].close();
 				writeIsClosed[g] = true;
 			}catch (Exception e){e.printStackTrace();}
 		}
-
-
 
 		merge();
 	}
@@ -160,7 +158,7 @@ public class Sorter
 	private void merge()
 	{
 		KVHeap mergeHeap = new KVHeap(_maxFiles - 1);
-		_readPosition = new long[_maxFiles];
+
 		BufferedReader[] fileReaders = new BufferedReader[_maxFiles];
 		int prevRun = -1;
 		boolean first = true;
@@ -183,7 +181,7 @@ public class Sorter
 				try
 				{
 					// Do not read from the file we're writing to
-					if (!new File("run" + i).exists() || i == _runs)
+					if (i == _runs || !new File("run" + i).exists())
 						continue;
 					if (fileReaders[i] == null)
 						fileReaders[i] = _IOMan.createBufferedReader("run" + i);
@@ -198,7 +196,7 @@ public class Sorter
 				// So we delete that file and reset its record of reading, such that next time we read this file we read from the beginning
 				if (inLine == null)
 				{
-					_readPosition[i] = 0;
+
 					tempruns = i;
 					try
 					{
@@ -212,14 +210,11 @@ public class Sorter
 					fileReaders[i] = null;
 				}
 				// If the empty string is read, then must have reached end of run. We just increment the read position by 1 to account for the newline symbol
-				else if (inLine.equals(""))
-				{
-					_readPosition[i] += 1;
-				} else
+				else if (!inLine.isEmpty())
 				{
 					// If a string is read, then increment the read position by the length of that string + newline
 					// And then put the string (and its associated  onto the heap.
-					_readPosition[i] += inLine.getBytes().length + 1;
+
 					mergeHeap.insert(new KVPair<Integer, String>(i, inLine));
 				}
 			}
@@ -241,8 +236,8 @@ public class Sorter
 				{
 					// If the file where the smallest item in heap came from is not depleted
 					// Then we read from it
-					if (fileReaders[key] != null)
-						inLine = fileReaders[key].readLine();
+					//if (fileReaders[key] != null)
+					inLine = fileReaders[key].readLine();
 				} catch (Exception e)
 				{
 					e.printStackTrace();
@@ -251,7 +246,7 @@ public class Sorter
 				// If inLine is null then that file is depleted
 				if (inLine == null)
 				{
-					_readPosition[key] = 0;
+
 
 					// Remove the smallest item in that heap
 					mergeHeap.get();
@@ -274,11 +269,8 @@ public class Sorter
 				}
 				else // If not null
 				{
-
-					_readPosition[key] += inLine.getBytes().length + 1;
-
 					// If end of a run in this file, then we just remove top from heap
-					if (inLine.equals(""))
+					if (inLine.isEmpty())
 						mergeHeap.get();
 					else
 					// Otherwise we replace top with the newly read line
@@ -299,7 +291,7 @@ public class Sorter
 				{
 					// If tempruns has been modified, then one run must have been depleted.
 					// Therefore we want to close the current writing stream
-					_currentStream.flush();
+					//_currentStream.flush();
 					_currentStream.close();
 					_currentStream = null;
 				} catch (Exception e)
@@ -309,7 +301,7 @@ public class Sorter
 			}
 
 			// End of processing an entire run
-			System.err.println("pass");
+			//System.err.println("pass");
 		}
 
 
@@ -319,7 +311,7 @@ public class Sorter
 		if(_IOMan.getType() == IOManager.GZIPPED)
 		{
 			unzip("run" + (prevRun), "output");
-			deleteFile("run" + (prevRun));
+			//deleteFile("run" + (prevRun));
 		}
 		else
 		{
@@ -413,6 +405,7 @@ public class Sorter
 		try
 		{
 			writers[_runs].write(item + "\n");
+			//writers[_runs].flush();
 		}catch (Exception e){e.printStackTrace();}
 		zz++;
 	}
@@ -434,15 +427,10 @@ public class Sorter
 		try
 		{
 			_currentStream.write(item + "\n");
+			//_currentStream.flush();
 		}catch (Exception e){e.printStackTrace();}
 
 		zz++;
-	}
-
-
-	private void getRun()
-	{
-
 	}
 
 
