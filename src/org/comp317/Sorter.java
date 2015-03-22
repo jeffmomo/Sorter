@@ -13,7 +13,7 @@ public class Sorter
 	private int _runs;
 	private int _maxFiles;
 	private OutputStreamWriter _currentStream;
-	private IOManager _IOMan = new IOManager(IOManager.NORMAL);
+	private IOManager _IOMan = new IOManager(IOManager.NORMAL, "UTF-8");
 
 	private OutputStreamWriter[] writers;
 	private boolean[] writeIsClosed ;
@@ -271,6 +271,10 @@ public class Sorter
 			// End of processing an entire run
 			System.err.println("pass");
 		}
+
+
+		if(new File("output").exists())
+			deleteFile("output");
 
 		if(_IOMan.getType() == IOManager.GZIPPED)
 		{
