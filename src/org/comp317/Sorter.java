@@ -143,6 +143,18 @@ public class Sorter
 		}
 	}
 
+	private int numReaders(BufferedReader[] fr)
+	{
+		int out = 0;
+		for(int i = 0; i < fr.length; i++)
+		{
+			if(fr[i] != null)
+				out++;
+		}
+
+		return out;
+	}
+
 
 	// Merges existing runs
 	private void merge()
@@ -151,6 +163,7 @@ public class Sorter
 		_readPosition = new long[_maxFiles];
 		BufferedReader[] fileReaders = new BufferedReader[_maxFiles];
 		int prevRun = -1;
+		boolean first = true;
 
 		// Set initial file to write into
 		_runs = _maxFiles - 1;
@@ -158,8 +171,10 @@ public class Sorter
 		// Process an arbitrary number of runs.
 		// Use higher values if neccesary to complete the merge
 		// The number needs to be calculated thru fibbonacci or something
-		for(int z = 0; z < 16; z++)
+		//for(int z = 0; z < 1000; z++)
+		while(numReaders(fileReaders) > 1 || first)
 		{
+			first = false;
 			int tempruns = -1;
 			for (int i = 0; i < _maxFiles; i++)
 			{

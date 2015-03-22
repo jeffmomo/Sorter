@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args)
     {
 
-	    String[] testerino = new String[220];
+	    String[] testerino = new String[200000];
 
 	    for(int i = 0; i < testerino.length; i++)
 	    {
