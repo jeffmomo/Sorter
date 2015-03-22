@@ -14,7 +14,7 @@ public class Sorter
 	private int _runs;
 	private int _maxFiles;
 	private BufferedWriter _currentStream;
-	private IOManager _IOMan = new IOManager(IOManager.NORMAL, "UTF-8", 65536);
+	private IOManager _IOMan = new IOManager(IOManager.NORMAL, "UTF-8", 65536, 65536);
 
 	private BufferedWriter[] writers;
 	private boolean[] writeIsClosed ;
