@@ -1,6 +1,7 @@
 package org.comp317;
 
 import java.io.*;
+import java.util.zip.GZIPInputStream;
 
 
 /**
@@ -107,9 +108,9 @@ public class Sorter
 		{
 			File f = new File(fname);
 			if(f.delete()){
-				System.out.println(f.getName() + " is deleted!");
+				System.err.println(f.getName() + " is deleted!");
 			}else{
-				System.out.println("Delete operation is failed.");
+				System.err.println("Delete operation is failed.");
 			}
 		} catch (Exception e)
 		{
@@ -124,6 +125,7 @@ public class Sorter
 		KVHeap mergeHeap = new KVHeap(_maxFiles);
 		_readPosition = new long[_maxFiles];
 		BufferedReader[] fileReaders = new BufferedReader[_maxFiles];
+		int prevRun = -1;
 
 		// Set initial file to write into
 		_runs = _maxFiles - 1;
@@ -131,7 +133,7 @@ public class Sorter
 		// Process an arbitrary number of runs.
 		// Use higher values if neccesary to complete the merge
 		// The number needs to be calculated thru fibbonacci or something
-		for(int z = 0; z < 50; z++)
+		for(int z = 0; z < 70; z++)
 		{
 			int tempruns = -1;
 			for (int i = 0; i < _maxFiles; i++)
@@ -165,7 +167,7 @@ public class Sorter
 					{
 						e.printStackTrace();
 					}
-					;
+
 					deleteFile("run" + i);
 					fileReaders[i] = null;
 				}
@@ -251,6 +253,7 @@ public class Sorter
 			if (tempruns != -1)
 			{
 				// Set the new writing destination
+				prevRun = _runs;
 				_runs = tempruns;
 				try
 				{
@@ -266,7 +269,54 @@ public class Sorter
 			}
 
 			// End of processing an entire run
-			System.out.println("pass");
+			System.err.println("pass");
+		}
+
+		if(_IOMan.getType() == IOManager.GZIPPED)
+		{
+			unzip("run" + (prevRun), "output");
+			deleteFile("run" + (prevRun));
+		}
+		else
+		{
+			File old = new File("run" + prevRun);
+			File output = new File("output");
+
+			if(old.renameTo(output)) 
+			{
+				System.err.println("FINISHED");
+			} else {
+				System.err.println("Error in renaming final output");
+			}
+		}
+	}
+
+	private void unzip(String inName, String outName)
+	{
+
+		byte[] buffer = new byte[1024];
+
+		try
+		{
+
+			GZIPInputStream gzStream =
+					new GZIPInputStream(new FileInputStream(inName));
+
+			FileOutputStream out =
+					new FileOutputStream(outName);
+
+			int len;
+			while ((len = gzStream.read(buffer)) > 0)
+			{
+				out.write(buffer, 0, len);
+			}
+
+			gzStream.close();
+			out.close();
+
+		} catch (IOException e)
+		{
+			e.printStackTrace();
 		}
 	}
 
