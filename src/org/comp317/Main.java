@@ -10,7 +10,8 @@ public class Main {
     public static void main(String[] args)
     {
 
-	    String[] testerino = new String[200000];
+	    String[] testerino = new String[0];
+
 
 	    for(int i = 0; i < testerino.length; i++)
 	    {
@@ -22,17 +23,14 @@ public class Main {
 	    int runs = 1;
 
 	    long startTime = System.nanoTime();
+	    System.err.println("start");
 
-	    Sorter s = new Sorter(30, 10);
-	    s.sort(testerino);
+	    Sorter s = new Sorter(30, 7);
+	    s.sort(testerino, "output");
 
 	    long endTime = System.nanoTime() - startTime;
 
 	    System.err.println(endTime / 1000000);
-
-
-
-
     }
 
 	private static String rando(int len)

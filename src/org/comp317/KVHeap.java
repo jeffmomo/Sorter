@@ -3,9 +3,9 @@ package org.comp317;
 
 
 /**
- * Heap implementation based on 0-based Array
+ * Heap implementation based on 2 0-based Arrays
  *
- *
+ * Allows retrieval of a key and its associated value
  */
 
 // MinHeap
@@ -15,18 +15,14 @@ public class KVHeap
 	private int[] _heapBaseK;
 	private String[] _heapBaseV;
 
-	//
-// Constructors
-//
+
 	public KVHeap(int capacity)
 	{
 		_heapBaseK = new int[capacity];
 		_heapBaseV = new String[capacity];
 	}
 
-	//
-// Public Methods
-//
+
 	public void insert(KVPair<Integer,String> item)
 	{
 		_heapBaseK[_size] = item.key;
@@ -85,9 +81,6 @@ public class KVHeap
 	}
 
 
-	//
-// Private Methods
-//
 	private void downHeapFrom(int fromPosition)
 	{
 		int position = fromPosition;
@@ -110,6 +103,7 @@ public class KVHeap
 				return;
 		}
 	}
+
 	private void swap(int idxA, int idxB)
 	{
 		int tmpK = _heapBaseK[idxA];
@@ -117,7 +111,6 @@ public class KVHeap
 
 		_heapBaseK[idxA] = _heapBaseK[idxB];
 		_heapBaseV[idxA] = _heapBaseV[idxB];
-
 
 		_heapBaseK[idxB] = tmpK;
 		_heapBaseV[idxB] = tmpV;

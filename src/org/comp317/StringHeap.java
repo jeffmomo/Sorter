@@ -17,14 +17,21 @@ public class StringHeap
 //
 // Constructors
 //
+
+	// Creates an static sized, empty heap
 	public StringHeap(int capacity)
 	{
 		_heapBase = new String[capacity];
 	}
+
+	// Heapifies an existing array, performing all necessary downheaps
 	public StringHeap(String[] baseArray)
 	{
 		_heapBase = baseArray;
-		_size = baseArray.length;
+
+		// Gets the real size of the underlying array
+		for(;_size < baseArray.length && baseArray[_size] != null; ++_size)
+
 
 		for(int position = (_size - 1) / 2; position >= 0; position--)
 		{
@@ -39,7 +46,7 @@ public class StringHeap
 	{
 		_heapBase[_size++] = item;
 
-		// Upheap
+		// Upheaps
 		for(int position = _size - 1; position > 0;)
 		{
 			int parentPosition = (position - 1) / 2;
@@ -50,6 +57,7 @@ public class StringHeap
 		}
 	}
 
+	// Removes the root of the heap, and returns it
 	public String get()
 	{
 		if(_heapBase[0] == null)
@@ -63,6 +71,7 @@ public class StringHeap
 		return smallest;
 	}
 
+	// Replaces the root of the heap with another item, and returns the root.
 	public String replace(String item)
 	{
 		String smallest = _heapBase[0];
