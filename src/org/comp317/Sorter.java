@@ -114,6 +114,7 @@ public class Sorter
 		// Flushes and closes all writers, as all runs have been created
 		for(int g = 0; g < _maxFiles - 1; g++)
 		{
+                    System.out.println(_maxFiles + " " + g);
 			try
 			{
 				writers[g].flush();

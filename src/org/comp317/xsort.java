@@ -61,27 +61,26 @@ public class xsort
             {
                 BufferedReader br = new BufferedReader(new FileReader(inputFileName));                
                 inputArray = readStreamTillEnd(br, stdinInput);
+                br.close();
             }catch(IOException e){e.printStackTrace();}
         } else
         {
+            try
+            {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             inputArray = readStreamTillEnd(br, stdinInput);
+            br.close();
+            }catch(IOException e){e.printStackTrace();}
         }
+		
         System.out.println("total lines: " + inputArray.length);
         System.out.println("run size: " + runSize + "\nNum files: " + numFiles +"\ntempdir: " +tempDir + "\nin file: " + inputFileName + "\nout file: " + outputFileName + "\nstdinput: \n");
-        System.out.println("derp");  
         for (int i = 0; i< inputArray.length;i++)
         {
              System.out.println(inputArray[i]);            
         }
-        System.out.println("derp " + inputArray.length);
         Sorter s = new Sorter(runSize, numFiles);
         s.sort(inputArray);
-
-
-        
-        
-        
     }
     
     public static String[] readStreamTillEnd(BufferedReader br, boolean stdinStream)
