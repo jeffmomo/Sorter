@@ -14,7 +14,7 @@ public class Sorter
 	private StringHeap _heap;
 	private int _runs;
 	private int _maxFiles;
-	private IOManager _IOMan = new IOManager(IOManager.NORMAL, "UTF-8", 8192, 8192, false);
+	private IOManager _IOMan;
 
 	private BufferedWriter _currentStream;
 	private BufferedWriter[] writers;
@@ -28,11 +28,12 @@ public class Sorter
 
 	private String _outputFile = "output";
 
-	public Sorter(int bufferSize, int maxFiles)
+	public Sorter(int bufferSize, int maxFiles, String tempDirectory)
 	{
 		_heap = new StringHeap(bufferSize);
 		_maxFiles = maxFiles;
 
+		_IOMan = new IOManager(IOManager.NORMAL, "UTF-8", 8192, 8192, false, tempDirectory);
 	}
 
 	// Performs sorting
@@ -161,7 +162,7 @@ public class Sorter
 	{
 		try
 		{
-			File f = new File(fname);
+			File f = _IOMan.getFile(fname);
 			if(f.delete()){
 				debugLog(f.getName() + " is deleted!");
 			}else{
@@ -222,7 +223,7 @@ public class Sorter
 				try
 				{
 					// Do not read from the file we're writing to
-					if (i == _runs || !new File("run" + i).exists())
+					if (i == _runs || !_IOMan.getFile("run" + i).exists())
 						continue;
 
 					// New file readers may need to be created for the current run being read
@@ -370,7 +371,7 @@ public class Sorter
 			{
 				try
 				{
-					FileInputStream br = new FileInputStream("run" + (finalRun));
+					FileInputStream br = new FileInputStream(_IOMan.getDirectory() + "run" + (finalRun));
 
 					byte[] buffer = new byte[1024];
 					int length;
@@ -386,8 +387,8 @@ public class Sorter
 			else
 			{
 				// Perform renaming of final file
-				File old = new File("run" + finalRun);
-				File output = new File(_outputFile);
+				File old = _IOMan.getFile("run" + finalRun);
+				File output = _IOMan.getFile(_outputFile);
 
 				if (old.renameTo(output))
 					debugLog("FINISHED");
@@ -407,11 +408,11 @@ public class Sorter
 
 		try
 		{
-			GZIPInputStream gzStream = new GZIPInputStream(new FileInputStream(inName));
+			GZIPInputStream gzStream = new GZIPInputStream(new FileInputStream(_IOMan.getDirectory() + inName));
 
 			OutputStream out;
 			if(outName != null)
-				out = new FileOutputStream(outName);
+				out = new FileOutputStream(_IOMan.getDirectory() + outName);
 			else
 				out = System.out;
 

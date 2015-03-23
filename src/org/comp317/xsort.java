@@ -70,13 +70,9 @@ public class xsort
 		// printing information out
         System.err.println("total lines: " + inputArray.length);
         System.err.println("run size: " + runSize + "\nNum files: " + numFiles +"\ntempdir: " +tempDir + "\nin file: " + inputFileName + "\nout file: " + outputFileName + "\nstdinput: \n");
-        for (int i = 0; i< inputArray.length;i++)
-        {
-             System.out.println(inputArray[i]);
-        }		
-		// run sort merge
-        Sorter s = new Sorter(runSize, numFiles);
 
+		// run sort merge
+        Sorter s = new Sorter(runSize, numFiles, tempDir);
 	    if(!outputFileName.isEmpty())
             s.sort(inputArray, outputFileName);
 	    else
@@ -96,7 +92,7 @@ public class xsort
                 String line = br.readLine();
                 while(!line.equals(""))
                 {
-				    linesList.add(line);
+	                linesList.add(line);
                     line = br.readLine();
                 }            
             } catch(IOException e){e.printStackTrace();}
