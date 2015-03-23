@@ -70,8 +70,7 @@ public class xsort
         {
              System.out.println(inputArray[i]);
         }
-        System.err.println("derp " + inputArray.length);
-        Sorter s = new Sorter(runSize, numFiles);
+        Sorter s = new Sorter(runSize, numFiles, tempDir);
 
 	    if(!outputFileName.isEmpty())
             s.sort(inputArray, outputFileName);
