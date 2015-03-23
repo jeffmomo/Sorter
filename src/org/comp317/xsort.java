@@ -70,7 +70,6 @@ public class xsort
         {
              System.out.println(inputArray[i]);
         }
-        System.err.println("derp " + inputArray.length);
         Sorter s = new Sorter(runSize, numFiles);
 
 	    if(!outputFileName.isEmpty())
@@ -89,9 +88,8 @@ public class xsort
                 String line = br.readLine();
                 while(!line.equals(""))
                 {
-
+				    linesList.add(line);
                     line = br.readLine();
-                    linesList.add(line);
                 }            
             } catch(IOException e){e.printStackTrace();}
         } else
