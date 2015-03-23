@@ -1,7 +1,10 @@
 package org.comp317;
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.LinkedList;
 
 public class xsort
 {
@@ -16,6 +19,7 @@ public class xsort
                 totalInput = "";
         boolean stdinInput = true,
                 stdOutput = true;
+
         
         if(args.length >0)
         {
@@ -46,47 +50,67 @@ public class xsort
                     i++;
                 }
             }
-            
-            // input file specified
-            if(args.length%2 == 1)
-            {
-                stdinInput = false;
-                inputFileName = args[args.length-1];
-            }
         }
-        
-        if (stdinInput)
-        { 
-            
+        String[] inputArray = null;
+        // input file specified
+        if(args.length%2 == 1)
+        {
+            stdinInput = false;
+            inputFileName = args[args.length-1];
+            try
+            {
+                BufferedReader br = new BufferedReader(new FileReader(inputFileName));                
+                inputArray = readStreamTillEnd(br, stdinInput);
+            }catch(IOException e){e.printStackTrace();}
+        } else
+        {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            String input;            
-            while (!(input = readLine(br)).equals(""))
-            {
-                //System.out.println(input);
-                totalInput += input + "\n";
-            }
+            inputArray = readStreamTillEnd(br, stdinInput);
         }
-        String[] inputArray = totalInput.split("\n");
-        
-        Sorter s = new Sorter(runSize, numFiles);        
-        s.sort(inputArray);
         System.out.println("total lines: " + inputArray.length);
-        System.out.println("run size: " + runSize + "\nNum files: " + numFiles +"\ntempdir: " +tempDir + "\nin file: " + inputFileName + "\nout file: " + outputFileName + "\nstdinput: \n" + totalInput);
+        System.out.println("run size: " + runSize + "\nNum files: " + numFiles +"\ntempdir: " +tempDir + "\nin file: " + inputFileName + "\nout file: " + outputFileName + "\nstdinput: \n");
+        System.out.println("derp");  
+        for (int i = 0; i< inputArray.length;i++)
+        {
+             System.out.println(inputArray[i]);            
+        }
+        System.out.println("derp");
+        Sorter s = new Sorter(runSize, numFiles);
+        s.sort(inputArray);
+
+
+        
+        
         
     }
     
-    
-    public static String readLine(BufferedReader br)
+    public static String[] readStreamTillEnd(BufferedReader br, boolean stdinStream)
     {
-        String line = null;
-        try {
-           line = br.readLine();
-        } catch (IOException ioe) {
-           System.err.println("error reading");
-           System.exit(1);
-        }
-        return line;
-    }
+        LinkedList<String> linesList = new LinkedList<String>();
+        if(stdinStream)
+        {
+            try 
+            {
+                String line = br.readLine();
+                while(!line.equals(""))
+                {
 
-	
+                    line = br.readLine();
+                    linesList.add(line);
+                }            
+            } catch(IOException e){e.printStackTrace();}
+        } else
+        {
+            try 
+            {
+                String line = br.readLine();
+                while(line != null)
+                {
+                    linesList.add(line);
+                    line = br.readLine();
+                }            
+            } catch(IOException e){e.printStackTrace();}
+        }
+        return linesList.toArray(new String[linesList.size()]);
+    }
 }

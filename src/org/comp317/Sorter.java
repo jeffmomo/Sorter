@@ -366,18 +366,26 @@ public class Sorter
 	}
         
         // finds the next distribution in the generalised fibonacci sequence to distribute the data based on the number of files and the previous sequence
-        private static int[] fibNext(int[] previousSequence, int outputIndex)
+        private static int[] fibNext(int[] previousSequence)
         {
+            int[] returnArray = new int[previousSequence.length];
+            int outputIndex=0;
+            for(int d = 0;d<previousSequence.length;d++)
+            {
+                if(previousSequence[d] >= previousSequence[outputIndex])
+                    outputIndex = d;
+            }
+            
             for(int i = 0;i<previousSequence.length;i++)
             {
                     if (i != outputIndex)
                     {
-                            previousSequence[i] += previousSequence[outputIndex];
+                            returnArray[i] = previousSequence[outputIndex]+previousSequence[i];
                     }
             }
-            previousSequence[outputIndex] = 0;
+            //previousSequence[outputIndex] = 0;
             
-            return previousSequence;
+            return returnArray;//previousSequence;
         }
         
         // finds a generalised fibonacci sequence to distribute the data based on the number of files and data length required
@@ -385,14 +393,14 @@ public class Sorter
 	{
 		int[] returnArray = new int[maxFiles];
 		returnArray[maxFiles-1] = 1;
-		int output = maxFiles-1;
+		//int output = maxFiles-1;
 		int total = 1;
 		
                 printRuns(returnArray,maxFiles,total);
 		while (true)
 		{
                         // gets next sequence in the generalized fibonacci
-                        returnArray = fibNext(returnArray, output);
+                        returnArray = fibNext(returnArray);
                         for(int i = 0;i<maxFiles;i++)
 			{
                             total += returnArray[i];
@@ -401,15 +409,15 @@ public class Sorter
 			printRuns(returnArray,maxFiles,total);
 			if (total >= dataLength)
 			{
-				return returnArray;
+                            return returnArray;
 			}
 			total = 0;
                         
-			output--;
+			/*output--;
 			if(output <0)
 			{
 				output += (maxFiles);
-			}
+			}*/
 		}
 	}
         
