@@ -25,12 +25,12 @@ public class Sorter
 	private int[] _currentRuns;
 
 	private int zz = 0;
+        
 
 	public Sorter(int bufferSize, int maxFiles)
 	{
 		_heap = new StringHeap(bufferSize);
 		_maxFiles = maxFiles;
-
 	}
 
 	public void sort(String[] data)
@@ -365,36 +365,50 @@ public class Sorter
 		}
 	}
         
-        private static int[] fibSequence(int dataLength, int _maxFiles)
+        // finds the next distribution in the generalised fibonacci sequence to distribute the data based on the number of files and the previous sequence
+        private static int[] fibNext(int[] previousSequence, int outputIndex)
+        {
+            for(int i = 0;i<previousSequence.length;i++)
+            {
+                    if (i != outputIndex)
+                    {
+                            previousSequence[i] += previousSequence[outputIndex];
+                    }
+            }
+            previousSequence[outputIndex] = 0;
+            
+            return previousSequence;
+        }
+        
+        // finds a generalised fibonacci sequence to distribute the data based on the number of files and data length required
+        private static int[] fibSequence(int dataLength, int maxFiles)
 	{
-		int[] returnArray = new int[_maxFiles];
-		returnArray[_maxFiles-1] = 1;
-		int output = _maxFiles-1;
+		int[] returnArray = new int[maxFiles];
+		returnArray[maxFiles-1] = 1;
+		int output = maxFiles-1;
 		int total = 1;
 		
-                printRuns(returnArray,_maxFiles,total);
+                printRuns(returnArray,maxFiles,total);
 		while (true)
 		{
-			for(int i = 0;i<_maxFiles;i++)
+                        // gets next sequence in the generalized fibonacci
+                        returnArray = fibNext(returnArray, output);
+                        for(int i = 0;i<maxFiles;i++)
 			{
-				if (i != output)
-				{
-					returnArray[i] += returnArray[output];
-					total += returnArray[i];
-				}
-			}
-			returnArray[output] = 0;
-			printRuns(returnArray,_maxFiles,total);
+                            total += returnArray[i];
+                        }
+			
+			printRuns(returnArray,maxFiles,total);
 			if (total >= dataLength)
 			{
 				return returnArray;
 			}
 			total = 0;
+                        
 			output--;
-
 			if(output <0)
 			{
-				output += (_maxFiles);
+				output += (maxFiles);
 			}
 		}
 	}

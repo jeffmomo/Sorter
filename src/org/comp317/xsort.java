@@ -57,8 +57,10 @@ public class xsort
         
         if (stdinInput)
         { 
-            String input;
-            while (!(input = readLine()).equals(""))
+            
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            String input;            
+            while (!(input = readLine(br)).equals(""))
             {
                 //System.out.println(input);
                 totalInput += input + "\n";
@@ -69,16 +71,13 @@ public class xsort
         Sorter s = new Sorter(runSize, numFiles);        
         s.sort(inputArray);
         System.out.println("total lines: " + inputArray.length);
-        
         System.out.println("run size: " + runSize + "\nNum files: " + numFiles +"\ntempdir: " +tempDir + "\nin file: " + inputFileName + "\nout file: " + outputFileName + "\nstdinput: \n" + totalInput);
         
     }
     
     
-    public static String readLine()
+    public static String readLine(BufferedReader br)
     {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
- 
         String line = null;
         try {
            line = br.readLine();
