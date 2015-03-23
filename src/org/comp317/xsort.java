@@ -74,7 +74,7 @@ public class xsort
         {
              System.out.println(inputArray[i]);            
         }
-        System.out.println("derp");
+        System.out.println("derp " + inputArray.length);
         Sorter s = new Sorter(runSize, numFiles);
         s.sort(inputArray);
 
