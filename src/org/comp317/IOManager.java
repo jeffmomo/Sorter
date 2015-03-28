@@ -1,4 +1,3 @@
-package org.comp317;
 
 import java.io.*;
 import java.util.zip.GZIPInputStream;
