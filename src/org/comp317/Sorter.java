@@ -27,12 +27,12 @@ public class Sorter
 
 	private String _outputFile = "output";
 
-	public Sorter(int bufferSize, int maxFiles, String tempDirectory)
+	public Sorter(int bufferSize, int maxFiles, String tempDirectory, boolean gzip)
 	{
 		_heap = new StringHeap(bufferSize);
 		_maxFiles = maxFiles;
-
-		_IOMan = new IOManager(IOManager.NORMAL, "UTF-8", 8192, 8192, false, tempDirectory);
+                
+		_IOMan = new IOManager((gzip? 1 : 0), "UTF-8", 8192, 8192, false, tempDirectory);
 	}
 
 	// Performs sorting

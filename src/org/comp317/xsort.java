@@ -1,9 +1,9 @@
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.LinkedList;
 
 public class xsort
@@ -17,6 +17,7 @@ public class xsort
                 outputFileName = "",
                 inputFileName = "";
         boolean stdinInput = true;
+        boolean gzip = false;
 
         // options
         if(args.length >0)
@@ -24,8 +25,9 @@ public class xsort
             for(int i = 0; i <args.length;i++)
             {
                 if(args[i].equals("-r"))
-                {	// setting run size (buffer size)(default 7)
-					runSize = Integer.parseInt(args[i+1]);
+                {	
+                    // setting run size (buffer size)(default 7)
+                    runSize = Integer.parseInt(args[i+1]);
                     if(runSize <7)
                     {
                         System.err.println("error:: run size too small (must be at least 7)");
@@ -33,18 +35,30 @@ public class xsort
                     }
                     i++;
                 } else if(args[i].equals("-k"))
-                {	// setting number of files (default 7)
+                {	
+                    // setting number of files (default 7)
                     numFiles = Integer.parseInt(args[i+1]);
                     i++;
                 } else if(args[i].equals("-d"))
-                {	// setting temp dir 
-                    tempDir = args[i+1];
+                {	
+                    // setting temp dir 
+                    tempDir = args[i+1] +"\\";
+                    File f = new File(tempDir);
+                    f.mkdirs();
                     i++;
                 } else if(args[i].equals("-o"))
-                {	// setting output file name
+                {	
+                    // setting output file name
                     outputFileName = args[i+1];
                     i++;
                 }
+                else if(args[i].equals("-gzo"))
+                {	
+                    // enable gzip
+                    gzip = true;
+                    outputFileName = args[i+1];
+                    i++;
+                } 
             }
         }
 		
@@ -57,26 +71,26 @@ public class xsort
             inputFileName = args[args.length-1];
             try
             {
-				// take input from file name
+                // take input from file name
                 BufferedReader br = new BufferedReader(new FileReader(inputFileName));                
                 inputArray = readStreamTillEnd(br, stdinInput);
             }catch(IOException e){e.printStackTrace();}
         } else
         {
-			// otherwise take from stdin stream
+            // otherwise take from stdin stream
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             inputArray = readStreamTillEnd(br, stdinInput);
         }
-		// printing information out
+        // printing information out
         System.err.println("total lines: " + inputArray.length);
         System.err.println("run size: " + runSize + "\nNum files: " + numFiles +"\ntempdir: " +tempDir + "\nin file: " + inputFileName + "\nout file: " + outputFileName + "\nstdinput: \n");
 
-		// run sort merge
-        Sorter s = new Sorter(runSize, numFiles, tempDir);
-	    if(!outputFileName.isEmpty())
+        // run sort merge
+        Sorter s = new Sorter(runSize, numFiles, tempDir,gzip);
+        if(!outputFileName.isEmpty())
             s.sort(inputArray, outputFileName);
-	    else
-		    s.sort(inputArray, null);
+        else
+            s.sort(inputArray, null);
     }
 	
     /**
@@ -86,7 +100,8 @@ public class xsort
     {
         LinkedList<String> linesList = new LinkedList<String>();
         if(stdinStream)
-        {	// reading from stdin
+        {	
+            // reading from stdin
             try 
             {
                 String line = br.readLine();
@@ -97,7 +112,8 @@ public class xsort
                 }            
             } catch(IOException e){e.printStackTrace();}
         } else
-        {	// reading from file
+        {	
+            // reading from file
             try 
             {
                 String line = br.readLine();

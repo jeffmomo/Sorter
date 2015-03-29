@@ -25,7 +25,7 @@ public class Main {
 	    long startTime = System.nanoTime();
 	    System.err.println("start");
 
-	    Sorter s = new Sorter(30, 7, "");
+	    Sorter s = new Sorter(30, 7, "",false);
 	    s.sort(testerino, "output");
 
 	    long endTime = System.nanoTime() - startTime;
