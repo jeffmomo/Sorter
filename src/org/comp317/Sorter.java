@@ -32,7 +32,7 @@ public class Sorter
 		_heap = new StringHeap(bufferSize);
 		_maxFiles = maxFiles;
                 
-		_IOMan = new IOManager((gzip? 1 : 0), "UTF-8", 8192, 8192, false, tempDirectory);
+		_IOMan = new IOManager((gzip? IOManager.GZIPPED: IOManager.NORMAL), "UTF-8", 8192, 8192, false, tempDirectory);
 	}
 
 	// Performs sorting

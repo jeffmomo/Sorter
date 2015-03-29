@@ -34,7 +34,7 @@ public class IOManager
 		if(_type == 0)
 			return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(_tempDirectory + fname), _charset), _writeBufferSize);
 		else
-			return new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(_tempDirectory +"\\"+ fname), _writeBufferSize, false), _charset), _writeBufferSize);
+			return new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(_tempDirectory + fname), _writeBufferSize, false), _charset), _writeBufferSize);
 	}
 
 	public BufferedReader createBufferedReader(String fname) throws Exception
@@ -42,7 +42,7 @@ public class IOManager
                 if(_type == 0)
 			return new BufferedReader(new InputStreamReader(new FileInputStream(_tempDirectory + fname), _charset), _readBufferSize);
 		else
-			return new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(_tempDirectory +"\\"+ fname), _readBufferSize), _charset), _readBufferSize);
+			return new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(_tempDirectory + fname), _readBufferSize), _charset), _readBufferSize);
 	}
 
 	public void write(BufferedWriter writer, String item) throws IOException
