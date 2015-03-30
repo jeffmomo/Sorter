@@ -42,8 +42,8 @@ public class xsort
                 } else if(args[i].equals("-d"))
                 {	
                     // setting temp dir 
-                    tempDir = args[i+1] +"\\";
-                    File f = new File(tempDir);
+                    tempDir = args[i+1];
+                    File f = new File(tempDir + File.separator);
                     f.mkdirs();
                     i++;
                 } else if(args[i].equals("-o"))
