@@ -26,23 +26,23 @@ public class IOManager
 		_writeBufferSize = writeBufferSize;
 		_readBufferSize = readBufferSize;
 		_autoFlush = autoFlush;
-		_tempDirectory = tempDirectory;
+		_tempDirectory = tempDirectory.isEmpty() ? "" : tempDirectory + File.separator;
 	}
 
 	public BufferedWriter createOutputStreamWriter(String fname) throws Exception
 	{
 		if(_type == 0)
-			return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(_tempDirectory + File.separator + fname), _charset), _writeBufferSize);
+			return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(_tempDirectory + fname), _charset), _writeBufferSize);
 		else
-			return new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(_tempDirectory + File.separator + fname), _writeBufferSize, false), _charset), _writeBufferSize);
+			return new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(_tempDirectory + fname), _writeBufferSize, false), _charset), _writeBufferSize);
 	}
 
 	public BufferedReader createBufferedReader(String fname) throws Exception
 	{
                 if(_type == 0)
-			return new BufferedReader(new InputStreamReader(new FileInputStream(_tempDirectory + File.separator + fname), _charset), _readBufferSize);
+	                return new BufferedReader(new InputStreamReader(new FileInputStream(_tempDirectory + fname), _charset), _readBufferSize);
 		else
-			return new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(_tempDirectory + File.separator + fname), _readBufferSize), _charset), _readBufferSize);
+	                return new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(_tempDirectory + fname), _readBufferSize), _charset), _readBufferSize);
 	}
 
 	public void write(BufferedWriter writer, String item) throws IOException
@@ -54,7 +54,7 @@ public class IOManager
 
 	public File getFile(String fname)
 	{
-		return new File(_tempDirectory + File.separator + fname);
+		return new File(_tempDirectory + fname);
 	}
 
 	public int getType()
@@ -63,7 +63,7 @@ public class IOManager
 	}
 	public String getDirectory()
 	{
-		return _tempDirectory + File.separator;
+		return _tempDirectory;
 	}
 
 }
