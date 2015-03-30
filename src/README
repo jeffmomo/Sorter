@@ -5,5 +5,5 @@ xsort [-k <runsize>] [-r <maxfiles>] [-d <tempdir>] [-o|-gzo <outputname>] [inpu
 The -gzo option enables gzipping during the creating and filling of runs. The final output has to be decompressed, resulting in 1 additional run.
 However, due to the significantly smaller file sizes, the overall number of IO operations is lower.
 
-
+The output of xsort will be either located in the current directory, or, if tempdir is specified, tempdir.
 
