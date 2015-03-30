@@ -1,22 +1,12 @@
-
-
-
-
 /**
  * Heap implementation based on 0-based Array
  *
  *
  */
-
-// MinHeap
 public class StringHeap
 {
 	private int _size = 0;
 	private String[] _heapBase;
-
-//
-// Constructors
-//
 
 	// Creates an static sized, empty heap
 	public StringHeap(int capacity)
@@ -39,9 +29,7 @@ public class StringHeap
 		}
 	}
 
-//
-// Public Methods
-//
+	// Inserts into the heap 1 item
 	public void insert(String item)
 	{
 		_heapBase[_size++] = item;
@@ -53,6 +41,7 @@ public class StringHeap
 			if(item.compareTo(_heapBase[parentPosition]) > 0)
 				return;
 
+			// Swaps position of the parentPosition and position, and set position to parentPosition
 			swap(position, position = parentPosition);
 		}
 	}
@@ -81,35 +70,44 @@ public class StringHeap
 
 		return smallest;
 	}
+
+	// Places the item at the back of the array. Inaccessable by the actual heap.
 	public void place(String item)
 	{
 		_heapBase[_size] = item;
 	}
+
+	// Returns the smallest element without removing it
 	public String peek()
 	{
 		return _heapBase[0];
 	}
+
+	// Gets the size of the heap
 	public int size()
 	{
 		return _size;
 	}
+
+	// Gets the heap's underlying array
 	public String[] getBase()
 	{
 		return _heapBase;
 	}
+
+	// Gets the maximum size of the underlying array
 	public int capacity()
 	{
 		return _heapBase.length;
 	}
 
 
-//
-// Private Methods
-//
+	// Downheaps from a position
 	private void downHeapFrom(int fromPosition)
 	{
 		int position = fromPosition;
 
+		// Loops while position does not exceed size
 		for(;;)
 		{
 			int d = position * 2 + 1;
@@ -119,15 +117,19 @@ public class StringHeap
 			if(d + 1 < _size && _heapBase[d].compareTo(_heapBase[d + 1]) > 0)
 				d++;
 
+			// If bigger than the biggest of the 2 children, then swap
 			if(_heapBase[position].compareTo(_heapBase[d]) > 0)
 			{
 				swap(position, d);
 				position = d;
 			}
 			else
+			// Otherwise the downheap process is finished
 				return;
 		}
 	}
+
+	// Swaps the two elements of the array
 	private void swap(int idxA, int idxB)
 	{
 		String tmp = _heapBase[idxA];

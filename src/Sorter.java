@@ -25,7 +25,7 @@ public class Sorter
 	private int _totalRuns = 1;
 	private int _totalPasses = 0;
 
-	private String _outputFile = "output";
+	private String _outputFile;
 
 	public Sorter(int bufferSize, int maxFiles, String tempDirectory, boolean gzip)
 	{
@@ -366,6 +366,7 @@ public class Sorter
 		}
 		else
 		{
+			// Output to stdout if no output file specified.
 			if(_outputFile == null)
 			{
 				try
@@ -384,6 +385,7 @@ public class Sorter
 				System.out.flush();
 			}
 			else
+			// If outputting to specified file, then just rename the final run file
 			{
 				// Perform renaming of final file
 				File old = _IOMan.getFile("run" + finalRun);
@@ -399,7 +401,7 @@ public class Sorter
 
 	}
 
-
+	// Performs unzipping of the a file
 	private void unzip(String inName, String outName)
 	{
 
@@ -433,15 +435,20 @@ public class Sorter
 		}
 	}
 
+	// Calculates which file the next run is going to go to
 	private int runFunction()
 	{
 		_totalRuns++;
 		int puttable = (_runs + 1) % (_maxFiles - 1);
 		int firstOneChecked = puttable;
 
+		// Evenly distributes the runs until it is no longer possible due to the fibonacci distribution
+
 		while(_currentRuns[puttable] >= _fibSequence[puttable + 1])
 		{
 			puttable = (puttable + 1) % (_maxFiles - 1);
+
+			// If, on some edge cases, the initial fibonacci sequence is too small for the number of runs (i.e. looped back to beginning again), then we must recalculate a new one
 			if(puttable == firstOneChecked)
 				_fibSequence = fibNext(_fibSequence);
 		}
@@ -450,6 +457,8 @@ public class Sorter
 		return puttable;
 	}
 
+	// Gets which file the next dummy run is going to go in to.
+	// Returns -1 when the fibonacci sequence is fulfilled.
 	private int runFunctionDummy()
 	{
 		_totalRuns++;
@@ -467,6 +476,7 @@ public class Sorter
 		return puttable;
 	}
 
+	// Puts the item into a file. Used in the initial run creation process
 	private void putStreamRuns(String item)
 	{
 		if(writers[_runs] == null || writeIsClosed[_runs])
@@ -487,6 +497,7 @@ public class Sorter
 		}catch (Exception e){e.printStackTrace();}
 	}
 
+	// Puts the item into a file. Used for the merging process
 	private void putStreamMerge(String item)
 	{
 		if(_currentStream == null)
@@ -506,6 +517,7 @@ public class Sorter
 		}catch (Exception e){e.printStackTrace();}
 	}
 
+	// Gets the next 'layer' of fibonacci sequence, given the previous
 	private int[] fibNext(int[] previousSequence)
 	{
 		//int total = previousSequence[previousSequence.length - 1];
@@ -535,6 +547,7 @@ public class Sorter
 
 	}
 
+	// Produces a fibonacci sequence, given the number of runs and the max number of files.
 	private int[] fibSequence(int dataLength, int maxFiles)
 	{
 		int[] returnArray = new int[maxFiles];

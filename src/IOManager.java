@@ -4,7 +4,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * Created by Jeff on 20/03/2015.
+ * A Façade which handles most of the file-related operations.
  */
 public class IOManager
 {
@@ -29,6 +29,7 @@ public class IOManager
 		_tempDirectory = tempDirectory.isEmpty() ? "" : tempDirectory + File.separator;
 	}
 
+	// Creates a writer given a file name
 	public BufferedWriter createOutputStreamWriter(String fname) throws Exception
 	{
 		if(_type == 0)
@@ -37,6 +38,7 @@ public class IOManager
 			return new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(_tempDirectory + fname), _writeBufferSize, false), _charset), _writeBufferSize);
 	}
 
+	// Creates a reader given a file name
 	public BufferedReader createBufferedReader(String fname) throws Exception
 	{
                 if(_type == 0)
@@ -45,6 +47,7 @@ public class IOManager
 	                return new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(_tempDirectory + fname), _readBufferSize), _charset), _readBufferSize);
 	}
 
+	// Writes to a given write the string
 	public void write(BufferedWriter writer, String item) throws IOException
 	{
 		writer.write(item);
@@ -52,15 +55,19 @@ public class IOManager
 			writer.flush();
 	}
 
+	// Creates a file handle
 	public File getFile(String fname)
 	{
 		return new File(_tempDirectory + fname);
 	}
 
+	// Gets the type of the IOManager, i.e. either Gzipped or Normal
 	public int getType()
 	{
 		return _type;
 	}
+
+	// Gets the temporary directory specified in the constructor
 	public String getDirectory()
 	{
 		return _tempDirectory;

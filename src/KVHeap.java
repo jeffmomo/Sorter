@@ -4,6 +4,8 @@
  * Heap implementation based on 2 0-based Arrays
  *
  * Allows retrieval of a key and its associated value
+ * Operates in the same manner as the StringHeap except it has 2 underlying arrays, one for the key, and one for the value.
+ * Easier on the Java GC than using a single array of KVPairs (in theory)
  */
 
 // MinHeap
