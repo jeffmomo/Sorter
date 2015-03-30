@@ -1,0 +1,9 @@
+Usage:
+
+xsort [-k <runsize>] [-r <maxfiles>] [-d <tempdir>] [-o|-gzo <outputname>] [inputname]
+
+The -gzo option enables gzipping during the creating and filling of runs. The final output has to be decompressed, resulting in 1 additional run.
+However, due to the significantly smaller file sizes, the overall number of IO operations is lower.
+
+
+
